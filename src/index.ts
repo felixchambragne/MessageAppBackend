@@ -25,8 +25,8 @@ app.post('/auth', authController)
 app.use(authenticateRequest)
 
 // Every day at 10:00 AM
-const SPEC = '0 10 * * *'
-schedule.scheduleJob(SPEC, async () => {
+export const SPEC = '0 10 * * *'
+export const deleteConversationsJob = schedule.scheduleJob(SPEC, async () => {
   await deleteConversations()
 })
 

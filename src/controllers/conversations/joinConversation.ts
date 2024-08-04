@@ -1,9 +1,9 @@
 import { Socket } from 'socket.io'
 import createConversation from '../../controllers/conversations/createConversation'
 import prismadb from '../../lib/prismadb'
-import { Message } from '@prisma/client'
 
-const joinConversation = async (socket: Socket, userId: string) => {
+const joinConversation = async (socket: Socket) => {
+  const userId = socket.data.userId
   try {
     let conversation = await prismadb.conversation.findFirst({
       where: {

@@ -4,7 +4,8 @@ import containsBannedWord from '../../utils/containsBannedWord'
 import createReply from './dev'
 import { io } from '../..'
 
-const sendMessage = async (socket: Socket, content: string, userId: string) => {
+const sendMessage = async (socket: Socket, content: string) => {
+  const userId = socket.data.userId
   const conversation = await prismadb.conversation.findFirst({
     where: {
       users: {
