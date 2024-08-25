@@ -1,10 +1,13 @@
+import admin from 'firebase-admin'
 import { Socket } from 'socket.io'
-import prismadb from '../../lib/prismadb'
-import containsBannedWord from '../../utils/containsBannedWord'
-import createReply from './dev'
 import { io } from '../..'
+import prismadb from '../../lib/prismadb'
+import EncryptedMessage from '../../types/EncryptedMessage'
 
-const sendMessage = async (socket: Socket, content: string) => {
+const sendMessage = async (
+  socket: Socket,
+  encryptedMessage: EncryptedMessage
+) => {
   const userId = socket.data.userId
   const conversation = await prismadb.conversation.findFirst({
     where: {
@@ -14,43 +17,49 @@ const sendMessage = async (socket: Socket, content: string) => {
         },
       },
     },
-    select: {
-      id: true,
+    include: {
+      users: {
+        select: {
+          id: true,
+          notificationsToken: true,
+        },
+      },
     },
   })
-
   if (!conversation) {
-    socket.emit(
-      'error',
-      'You are not authorized to send messages to this conversation'
-    )
+    socket.emit('error', 'Failed to get messages')
     return
   }
-
-  if (containsBannedWord(content)) {
-    socket.emit('error', 'Message contains banned word')
-    return
-  }
-
   const message = await prismadb.message.create({
     data: {
-      content,
+      cipher: encryptedMessage.cipher,
+      iv: encryptedMessage.iv,
+      salt: encryptedMessage.salt,
       senderId: userId,
       conversationId: conversation.id,
     },
   })
 
-  io.to(conversation.id).emit('message', message)
-  console.log(`User ${userId} sent message to conversation ${conversation.id}`)
-
-  if (process.env.NODE_ENV !== 'production') {
-    setTimeout(
-      async () => {
-        await createReply(conversation.id, userId)
+  const recipient = conversation.users.find((user) => user.id !== userId)
+  if (recipient && recipient.notificationsToken) {
+    const notificationMessage = {
+      notification: {
+        title: 'New Message',
+        body: 'You have received a new message!',
       },
-      Math.floor(Math.random() * 4000) + 1000
-    )
+      token: recipient.notificationsToken,
+    }
+    admin
+      .messaging()
+      .send(notificationMessage)
+      .then((response) => {
+        console.log('Notification sent:', response)
+      })
+      .catch((error) => {
+        console.error('Error sending notification:', error)
+      })
   }
+  io.to(conversation.id).emit('message', message)
 }
 
 export default sendMessage

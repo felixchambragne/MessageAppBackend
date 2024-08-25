@@ -10,5 +10,5 @@ devRouter.use((req, _res, next) => {
 
 devRouter.get('/delete', async (_req, res) => {
   await deleteConversations()
-  res.status(200).json({ message: 'Contacts updated' })
+  res.status(200).json({ message: 'Conversations deleted' })
 })

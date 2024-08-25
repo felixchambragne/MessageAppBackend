@@ -12,6 +12,15 @@ const authenticateUser = async (token: string) => {
       throw new Error('Unauthorized')
     }
 
+    await prismadb.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        lastActivityAt: new Date(),
+      },
+    })
+
     return userId
   } catch (err) {
     throw new Error('Unauthorized')

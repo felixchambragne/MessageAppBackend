@@ -7,25 +7,30 @@ const createConversation = async (userId: string) => {
       conversationId: null,
     },
     orderBy: {
-      lastActivityAt: 'asc',
+      lastActivityAt: 'desc',
     },
   })
 
-  const users = [{ id: userId }]
-  if (newContact) {
-    users.push({ id: newContact.id })
+  if (!newContact) {
+    return null
   }
 
   const conversation = await prismadb.conversation.create({
     data: {
       users: {
-        connect: users,
+        connect: [{ id: userId }, { id: newContact.id }],
       },
     },
     include: {
       messages: {
         orderBy: {
           createdAt: 'desc',
+        },
+      },
+      users: {
+        select: {
+          id: true,
+          publicKey: true,
         },
       },
     },

@@ -14,20 +14,56 @@ const joinConversation = async (socket: Socket) => {
         },
       },
       include: {
-        messages: {
-          orderBy: {
-            createdAt: 'desc',
+        users: {
+          select: {
+            id: true,
+            publicKey: true,
           },
-        }
+        },
       },
     })
     if (!conversation) {
       conversation = await createConversation(userId)
     }
 
+    if (!conversation || !conversation.users) {
+      socket.emit('error', 'Failed to join conversation')
+      return
+    }
+
+    const otherUserPublicKey = conversation.users.find(
+      (user) => user.id !== userId
+    )?.publicKey
+    if (!otherUserPublicKey) {
+      socket.emit('error', 'Failed to join conversation')
+      return
+    }
+
+    const user = await prismadb.user.findUnique({
+      where: {
+        id: userId,
+      },
+    })
+    if (!user) {
+      socket.emit('error', 'Failed to join conversation')
+      return
+    }
+    const isNewConversation = user.lastJoinAt < conversation.createdAt
+
+    await prismadb.user.update({
+      where: {
+        id: userId,
+      },
+      data: {
+        lastJoinAt: new Date(),
+      },
+    })
+
     socket.join(conversation.id)
-    socket.emit('joinedConversation', conversation.messages)
-    console.log(`User ${userId} joined conversation ${conversation.id}`)
+    socket.emit('joinedConversation', {
+      otherUserPublicKey,
+      isNewConversation,
+    })
   } catch (error) {
     console.error('Error joining conversation:', error)
     socket.emit('error', 'Failed to join conversation')
