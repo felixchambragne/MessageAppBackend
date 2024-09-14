@@ -26,6 +26,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node-schedule": "^2.1.7",
     "globals": "^15.8.0",
+    "nodemon": "^3.1.4",
     "prettier": "^3.3.3",
     "prisma": "^5.17.0",
     "typescript": "^5.5.4"
