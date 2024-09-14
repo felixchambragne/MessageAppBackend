@@ -11,13 +11,16 @@ import checkNotificationsToken from '../controllers/notifications/checkNotificat
 export const handleSocketConnection = async (socket: Socket) => {
   const userId = socket.data.userId
 
-  console.log(`User ${userId} connected`)
   socket.emit('userId', userId)
 
-  checkNotificationsToken(socket)
-  socket.on('setNotificationsToken', (notificationsToken: string) =>
+  const notificationsToken = await checkNotificationsToken(socket)
+  if (!notificationsToken) {
+    socket.emit('getNotificationsToken')
+  }
+
+  socket.on('setNotificationsToken', (notificationsToken: string) => {
     setNotificationsToken(socket, notificationsToken)
-  )
+  })
 
   socket.on('getCountdown', (callback) => {
     callback(getRemainingTimeInSeconds(deleteConversationsJob))
@@ -35,6 +38,5 @@ export const handleSocketConnection = async (socket: Socket) => {
   )
 
   socket.on('disconnect', () => {
-    console.log(`User ${userId} disconnected`)
   })
 }

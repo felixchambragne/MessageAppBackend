@@ -52,12 +52,6 @@ const sendMessage = async (
     admin
       .messaging()
       .send(notificationMessage)
-      .then((response) => {
-        console.log('Notification sent:', response)
-      })
-      .catch((error) => {
-        console.error('Error sending notification:', error)
-      })
   }
   io.to(conversation.id).emit('message', message)
 }

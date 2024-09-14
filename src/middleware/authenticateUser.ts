@@ -9,7 +9,7 @@ const authenticateUser = async (token: string) => {
     const user = await prismadb.user.findUnique({ where: { id: userId } })
 
     if (!user) {
-      throw new Error('Unauthorized')
+      throw new Error('user-not-found')
     }
 
     await prismadb.user.update({
@@ -23,7 +23,7 @@ const authenticateUser = async (token: string) => {
 
     return userId
   } catch (err) {
-    throw new Error('Unauthorized')
+    throw err
   }
 }
 

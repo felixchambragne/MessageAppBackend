@@ -3,7 +3,6 @@ import prismadb from '../../lib/prismadb'
 
 const getMessages = async (socket: Socket, limit: number, offset: number) => {
   const userId = socket.data.userId
-  console.log('Getting messages, offset:', offset, 'limit:', limit)
   const conversation = await prismadb.conversation.findFirst({
     where: {
       users: {

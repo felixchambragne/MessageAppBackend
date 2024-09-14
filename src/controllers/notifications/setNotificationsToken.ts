@@ -6,9 +6,7 @@ const setNotificationsToken = async (
   notificationsToken: string
 ) => {
   const userId = socket.data.userId
-
-  console.log(`User ${userId} set notifications token to ${notificationsToken}`)
-
+  
   await prismadb.user.update({
     where: {
       id: userId,

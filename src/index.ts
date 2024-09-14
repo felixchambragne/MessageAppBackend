@@ -5,7 +5,6 @@ import helmet from 'helmet'
 import schedule from 'node-schedule'
 import { Server } from 'socket.io'
 import signUp from './controllers/auth/signUp'
-import authenticateRequest from './middleware/authenticateRequest'
 import authenticateSocket from './middleware/authenticateSocket'
 import { devRouter } from './routes/dev'
 import { handleSocketConnection } from './socket/handleSocketConnection'
@@ -29,7 +28,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.post('/auth/signUp', signUp)
 
-app.use(authenticateRequest)
+//app.use(authenticateRequest)
 
 const PORT = process.env.PORT
 export const server = app.listen(PORT, () => {

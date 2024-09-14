@@ -7,18 +7,15 @@ const authenticateRequest = async (
   next: NextFunction
 ) => {
   const token = req.headers.authorization?.split(' ')[1]
-
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    return res.status(401).json({ message: 'unauthorized' })
   }
-
   try {
     const userId = await authenticateUser(token)
     req.body.userId = userId
     next()
-  } catch (err) {
-    console.log(err)
-    res.status(401).json({ message: 'Unauthorized' })
+  } catch (err: any) {
+    return res.status(401).json({ message: 'error' })
   }
 }
 

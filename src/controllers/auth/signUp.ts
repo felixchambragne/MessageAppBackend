@@ -11,12 +11,9 @@ const signUp = async (req: Request, res: Response) => {
     data: {
       publicKey,
     },
-    select: {
-      id: true,
-    },
   })
   const token = generateJWT(user.id)
-  return res.status(200).json({ token, userId: user.id })
+  return res.status(200).json(token)
 }
 
 export default signUp
