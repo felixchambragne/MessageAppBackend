@@ -39,6 +39,3 @@ serviceAccountKey.json
 
 .env
 
-#docker
-Dockerfile
-docker-compose.yml
